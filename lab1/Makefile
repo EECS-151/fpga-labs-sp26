@@ -1,9 +1,9 @@
 SHELL                   := $(shell which bash) -o pipefail
 ABS_TOP                 := $(subst /cygdrive/c/,C:/, $(shell pwd))
 SCRIPTS                 := $(ABS_TOP)/../scripts
-VIVADO                  ?= vivado
+VIVADO                  ?= /share/instsww/xilinx/2025.2/Vivado/bin/vivado
 VIVADO_OPTS             ?= -nolog -nojournal -mode batch
-FPGA_PART               ?= xc7z020clg400-1
+FPGA_PART               ?= xczu3eg-sfvc784-2-e
 RTL                     += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.v"))
 RTL_FPGA				:= $(ABS_TOP)/src/z1top.v
 CONSTRAINTS             += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.xdc"))
