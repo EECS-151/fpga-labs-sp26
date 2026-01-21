@@ -1,7 +1,7 @@
 source ../target.tcl
 open_hw_manager
 
-connect_hw_server -url localhost:4444 -allow_non_jtag
+connect_hw_server -url localhost:3121 -allow_non_jtag
 puts "Detected Hardware Targets: [get_hw_targets]"
 current_hw_target [get_hw_targets */xilinx_tcf/Xilinx/*]
 set_property PARAM.FREQUENCY 15000000 [get_hw_targets */xilinx_tcf/Xilinx/*]
