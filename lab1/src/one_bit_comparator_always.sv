@@ -1,11 +1,11 @@
 module one_bit_comparator_always (
-    input a,
-    input b,
-    output reg greater,
-    output reg less,
-    output reg equal
+    input logic a,
+    input logic b,
+    output logic greater,
+    output logic less,
+    output logic equal
 );
-    always @(*) begin
+    always_comb begin
         if (____) begin // TODO
             // TODO
         end else if (____) begin // TODO

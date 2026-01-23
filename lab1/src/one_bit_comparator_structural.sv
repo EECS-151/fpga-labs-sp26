@@ -1,11 +1,11 @@
 module one_bit_comparator_structural (
-    input a,
-    input b,
-    output greater,
-    output less,
-    output equal
+    input  logic a,
+    input  logic b,
+    output logic greater,
+    output logic less,
+    output logic equal
 );
-    wire a_not, b_not;
+    logic a_not, b_not;
 
     not(____); // TODO
     not(____); // TODO

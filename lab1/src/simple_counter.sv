@@ -1,11 +1,11 @@
 module simple_counter (
-    input clk,
-    input reset,
-    output [1:0] counter_out
+    input  logic       clk,
+    input  logic       reset,
+    output logic [1:0] counter_out
 );
-    reg [1:0] counter;
+    logic [1:0] counter;
 
-    always @(________ or ________) begin
+    always_ff @(________ or ________) begin
         if (____) begin // TODO
             counter <= 2'b00;
         end else begin

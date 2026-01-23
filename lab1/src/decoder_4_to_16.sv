@@ -1,6 +1,6 @@
 module decoder_4_to_16 (
-    input [3:0] addr,
-    output [15:0] one_hot
+    input  logic [3:0] addr,
+    output logic [15:0] one_hot
 );
     generate
         genvar i;
