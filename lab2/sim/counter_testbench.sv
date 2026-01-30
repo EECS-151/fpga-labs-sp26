@@ -4,9 +4,9 @@
 `define MS 1000000
 
 module counter_testbench();
-    reg clock = 0;
-    reg ce;
-    wire [3:0] LEDS;
+    logic clock = 0;
+    logic ce;
+    logic [3:0] LEDS;
 
     counter ctr (
         .clk(clock),
