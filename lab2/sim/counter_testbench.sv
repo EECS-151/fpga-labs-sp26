@@ -15,8 +15,8 @@ module counter_testbench();
     );
 
     // Notice that this code causes the `clock` signal to constantly
-    // switch up and down every 4 time steps.
-    always #(4) clock <= ~clock;
+    // switch up and down every 5 time steps.
+    always #(5) clock <= ~clock;
 
     initial begin
         `ifdef IVERILOG
