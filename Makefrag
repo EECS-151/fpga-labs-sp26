@@ -4,12 +4,14 @@ SCRIPTS                 := $(ABS_TOP)/../scripts
 VIVADO                  ?= /share/instsww/xilinx/2025.2/Vivado/bin/vivado
 VIVADO_OPTS             ?= -nolog -nojournal -mode batch
 FPGA_PART               ?= xczu3eg-sfvc784-2-e
-RTL                     += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.v"))
+RTL += $(subst /cygdrive/c/,C:/, \
+        $(shell find $(ABS_TOP)/src -type f \( -name "*.v" -o -name "*.sv" \)))
 CONSTRAINTS             += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.xdc"))
 TOP                     ?= z1top
 VCS                     := /home/ff/eecs151/hammer-tools/synopsys/vcs/P-2019.06/bin/vcs -full64
 VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -timescale=1ns/10ps -debug
-SIM_RTL                 := $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/sim -type f -name "*.v"))
+SIM_RTL := $(subst /cygdrive/c/,C:/, \
+            $(shell find $(ABS_TOP)/sim -type f \( -name "*.v" -o -name "*.sv" \)))
 IVERILOG                := iverilog
 IVERILOG_OPTS           := -D IVERILOG=1 -g2012 -gassertions -Wall -Wno-timescale
 VVP                     := vvp
