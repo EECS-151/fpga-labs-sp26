@@ -1,6 +1,12 @@
 # Exclude the following path(s) from git
 *.DS_Store
-*/*/build
+*/build
 */*/*.log
 */*/*.json
+lab1/fpga_temp_log.txt
+*.log
+*.backup*
+*.str
+*.jou
+*.lpr
 # End of .gitignore

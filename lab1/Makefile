@@ -75,7 +75,16 @@ impl: build/impl/$(TOP).bit
 all: build/impl/$(TOP).bit
 
 program: build/impl/$(TOP).bit $(SCRIPTS)/program.tcl
-	cd build/impl && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/program.tcl
+	@sleep infinity | assign-fpga-board > fpga_temp_log.txt 2>&1 & \
+	ASSIGN_PID=$$!; \
+	echo "ASSIGN_PID: $$ASSIGN_PID"; \
+	while ! grep -q "Vivado hw_server port:" fpga_temp_log.txt; do sleep 0.5; done; \
+	PORT=$$(grep -oP 'Vivado hw_server port: \K\d+' fpga_temp_log.txt); \
+	SERIAL=$$(grep -oP 'serial \K[A-Z0-9]+' fpga_temp_log.txt); \
+	echo "BOARD SERIAL: $$SERIAL"; \
+	/share/instsww/xilinx/2025.2/Vivado/bin/hw_server -stcp:localhost:$$PORT > /dev/null 2>&1 & \
+	trap "kill $$ASSIGN_PID $$HW_PID; rm -f fpga_temp_log.txt port.txt; echo 'Resources released.'" EXIT; \
+	cd build/impl && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/program.tcl -tclargs $$PORT
 
 program-force:
 	cd build/impl && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/program.tcl
@@ -97,6 +106,8 @@ clean:
 	sim/*.tb sim/*.daidir sim/csrc \
 	sim/ucli.key sim/*.vpd sim/*.vcd \
 	sim/*.tbi sim/*.fst sim/*.jou sim/*.log sim/*.out
+	cd $(SCRIPTS)
+	rm -f port.txt fpga_temp_log.txt hw_server.log nohup.out
 
 .PHONY: setup synth impl program program-force vivado all clean %.tb FORCE
 .PRECIOUS: sim/%.tb sim/%.tbi sim/%.fst sim/%.vpd
