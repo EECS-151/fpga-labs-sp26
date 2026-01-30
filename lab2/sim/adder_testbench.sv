@@ -4,9 +4,9 @@
 `define MS 1000000
 
 module adder_testbench();
-    reg [13:0] a;
-    reg [13:0] b;
-    wire [14:0] sum;
+    logic [13:0] a;
+    logic [13:0] b;
+    logic [14:0] sum;
 
     structural_adder sa (
         .a(a),
