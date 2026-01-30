@@ -3,7 +3,7 @@
 */build
 */*/*.log
 */*/*.json
-lab1/fpga_temp_log.txt
+scripts/*.tmp
 *.log
 *.backup*
 *.str
