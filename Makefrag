@@ -9,18 +9,39 @@ RTL += $(subst /cygdrive/c/,C:/, \
 CONSTRAINTS             += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.xdc"))
 TOP                     ?= z1top
 VCS                     := /home/ff/eecs151/hammer-tools/synopsys/vcs/P-2019.06/bin/vcs -full64
-VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -timescale=1ns/10ps -debug
+VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -kdb -timescale=1ns/10ps -debug
 SIM_RTL := $(subst /cygdrive/c/,C:/, \
             $(shell find $(ABS_TOP)/sim -type f \( -name "*.v" -o -name "*.sv" \)))
 IVERILOG                := iverilog
 IVERILOG_OPTS           := -D IVERILOG=1 -g2012 -gassertions -Wall -Wno-timescale
 VVP                     := vvp
 
-sim/%.tb: sim/%.v $(RTL)
-	cd sim && $(VCS) $(VCS_OPTS) -o $*.tb $(RTL) $*.v -top $*
+#########################################################################################
+# Verdi / FSDB settings
+#########################################################################################
+# vpd2fsdb converts VPD (from $vcdpluson) into FSDB (for Verdi)
+VPD2FSDB ?= /share/instsww/synopsys-new/verdi/T-2022.06-SP2/bin/vpd2fsdb
+SIM_RUNDIR := $(ABS_TOP)/sim
+
+define CONVERT_LATEST_VPD_TO_FSDB
+	vpd=$$(ls -t sim/*.vpd 2>/dev/null | head -n 1); \
+	echo "Found: $$vpd"; \
+	if [ -z "$$vpd" ]; then \
+	  echo "ERROR: No .vpd found in sim/"; \
+	  exit 1; \
+	fi; \
+	fsdb=$${vpd%.vpd}.fsdb; \
+	"$(VPD2FSDB)" "$$vpd" -o "$$fsdb"; \
+	echo "FSDB generated: $$fsdb"
+endef
+
+
+# Build testbench .tb from .sv
+sim/%.tb: sim/%.sv $(RTL)
+	cd sim && $(VCS) $(VCS_OPTS) -o $*.tb $(RTL) $*.sv -top $*
 
 sim/%.vpd: sim/%.tb
-	cd sim && ./$*.tb +verbose=1 +vpdfile+$*.vpd
+	cd sim && ./$*.tb +verbose=1 +vpdfile+$*.vpd; cd ..; $(CONVERT_LATEST_VPD_TO_FSDB)
 
 sim/%.tbi: sim/%.v $(RTL)
 	cd sim && $(IVERILOG) $(IVERILOG_OPTS) -o $*.tbi $*.v $(RTL)
