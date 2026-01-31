@@ -40,7 +40,7 @@ endef
 sim/%.tb: sim/%.sv $(RTL)
 	cd sim && $(VCS) $(VCS_OPTS) -o $*.tb $(RTL) $*.sv -top $*
 
-sim/%.vpd: sim/%.tb
+sim/%.fsdb: sim/%.tb
 	cd sim && ./$*.tb +verbose=1 +vpdfile+$*.vpd; cd ..; $(CONVERT_LATEST_VPD_TO_FSDB)
 
 sim/%.tbi: sim/%.v $(RTL)
