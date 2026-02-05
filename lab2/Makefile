@@ -1,24 +1,47 @@
 SHELL                   := $(shell which bash) -o pipefail
 ABS_TOP                 := $(subst /cygdrive/c/,C:/, $(shell pwd))
 SCRIPTS                 := $(ABS_TOP)/../scripts
-VIVADO                  ?= vivado
+VIVADO                  ?= /share/instsww/xilinx/2025.2/Vivado/bin/vivado
 VIVADO_OPTS             ?= -nolog -nojournal -mode batch
-FPGA_PART               ?= xc7z020clg400-1
-RTL                     += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.v"))
+FPGA_PART               ?= xczu3eg-sfvc784-2-e
+RTL += $(subst /cygdrive/c/,C:/, \
+        $(shell find $(ABS_TOP)/src -type f \( -name "*.v" -o -name "*.sv" \)))
 CONSTRAINTS             += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.xdc"))
 TOP                     ?= z1top
 VCS                     := /home/ff/eecs151/hammer-tools/synopsys/vcs/P-2019.06/bin/vcs -full64
-VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -timescale=1ns/10ps -debug
-SIM_RTL                 := $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/sim -type f -name "*.v"))
+VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -kdb -timescale=1ns/10ps -debug
+SIM_RTL := $(subst /cygdrive/c/,C:/, \
+            $(shell find $(ABS_TOP)/sim -type f \( -name "*.v" -o -name "*.sv" \)))
 IVERILOG                := iverilog
 IVERILOG_OPTS           := -D IVERILOG=1 -g2012 -gassertions -Wall -Wno-timescale
 VVP                     := vvp
 
-sim/%.tb: sim/%.v $(RTL)
-	cd sim && $(VCS) $(VCS_OPTS) -o $*.tb $(RTL) $*.v -top $*
+#########################################################################################
+# Verdi / FSDB settings
+#########################################################################################
+# vpd2fsdb converts VPD (from $vcdpluson) into FSDB (for Verdi)
+VPD2FSDB ?= /share/instsww/synopsys-new/verdi/T-2022.06-SP2/bin/vpd2fsdb
+SIM_RUNDIR := $(ABS_TOP)/sim
 
-sim/%.vpd: sim/%.tb
-	cd sim && ./$*.tb +verbose=1 +vpdfile+$*.vpd
+define CONVERT_LATEST_VPD_TO_FSDB
+	vpd=$$(ls -t sim/*.vpd 2>/dev/null | head -n 1); \
+	echo "Found: $$vpd"; \
+	if [ -z "$$vpd" ]; then \
+	  echo "ERROR: No .vpd found in sim/"; \
+	  exit 1; \
+	fi; \
+	fsdb=$${vpd%.vpd}.fsdb; \
+	"$(VPD2FSDB)" "$$vpd" -o "$$fsdb"; \
+	echo "FSDB generated: $$fsdb"
+endef
+
+
+# Build testbench .tb from .sv
+sim/%.tb: sim/%.sv $(RTL)
+	cd sim && $(VCS) $(VCS_OPTS) -o $*.tb $(RTL) $*.sv -top $*
+
+sim/%.fsdb: sim/%.tb
+	cd sim && ./$*.tb +verbose=1 +vpdfile+$*.vpd; cd ..; $(CONVERT_LATEST_VPD_TO_FSDB)
 
 sim/%.tbi: sim/%.v $(RTL)
 	cd sim && $(IVERILOG) $(IVERILOG_OPTS) -o $*.tbi $*.v $(RTL)
@@ -61,7 +84,28 @@ impl: build/impl/$(TOP).bit
 all: build/impl/$(TOP).bit
 
 program: build/impl/$(TOP).bit $(SCRIPTS)/program.tcl
-	cd build/impl && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/program.tcl
+	@rm -f $(SCRIPTS)/assign_board_test_log.tmp; \
+	assign-fpga-board > $(SCRIPTS)/assign_board_test_log.tmp 2>&1 & \
+	ASSIGN_PID=$$!; \
+	while ! grep -q "Vivado hw_server port:" $(SCRIPTS)/assign_board_test_log.tmp && ! grep -q "already have an instance" $(SCRIPTS)/assign_board_test_log.tmp; do \
+		sleep 0.1; \
+	done; \
+	if grep -q "already have an instance" $(SCRIPTS)/assign_board_test_log.tmp; then \
+		PORT=$$(cat $(SCRIPTS)/port.tmp); \
+		SERIAL=$$(cat $(SCRIPTS)/serial.tmp); \
+	else \
+		sleep infinity | assign-fpga-board > $(SCRIPTS)/assign_board_log.tmp 2>&1 & \
+		while ! grep -q "Vivado hw_server port:" $(SCRIPTS)/assign_board_log.tmp && ! grep -q "already have an instance" $(SCRIPTS)/assign_board_log.tmp; do \
+			sleep 0.1; \
+		done; \
+		PORT=$$(grep -oP 'Vivado hw_server port: \K\d+' $(SCRIPTS)/assign_board_log.tmp); \
+		SERIAL=$$(grep -oP 'serial \K[A-Z0-9]+' $(SCRIPTS)/assign_board_log.tmp); \
+		echo $$PORT > $(SCRIPTS)/port.tmp; \
+		echo $$SERIAL > $(SCRIPTS)/serial.tmp; \
+		/share/instsww/xilinx/2025.2/Vivado/bin/hw_server -stcp:localhost:$$PORT > /dev/null 2>&1 & \
+	fi; \
+	echo "BOARD SERIAL: $$SERIAL"; \
+	cd build/impl && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/program.tcl -tclargs $$PORT
 
 program-force:
 	cd build/impl && $(VIVADO) $(VIVADO_OPTS) -source $(SCRIPTS)/program.tcl
