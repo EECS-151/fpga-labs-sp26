@@ -1,7 +1,7 @@
-module synchronizer #(parameter WIDTH = 1) (
-    input [WIDTH-1:0] async_signal,
-    input clk,
-    output [WIDTH-1:0] sync_signal
+module synchronizer #(parameter int WIDTH = 1) (
+    input wire [WIDTH-1:0] async_signal,
+    input wire clk,
+    output logic [WIDTH-1:0] sync_signal
 );
     // TODO: Create your 2 flip-flop synchronizer here
     // This module takes in a vector of WIDTH-bit asynchronous

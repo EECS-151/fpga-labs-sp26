@@ -9,4 +9,10 @@ scripts/*.tmp
 *.str
 *.jou
 *.lpr
+*.tb
+*.daidir
+*/*/csrc
+*.key
+*.vpd
+*.fst
 # End of .gitignore

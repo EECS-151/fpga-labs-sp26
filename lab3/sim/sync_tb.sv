@@ -1,17 +1,19 @@
-`timescale 1ns/1ns
-`define CLK_PERIOD 8
+timeunit 1ns;
+timeprecision 1ns;
+
+localparam int CLK_PERIOD = 8;
 
 // This testbench checks that your synchronizer is made up of 2 flip-flops serially connected.
 // This testbench cannot model metastability.
 
-module sync_tb();
+module sync_tb;
     // Generate 125 Mhz clock
-    reg clk = 0;
-    always #(`CLK_PERIOD/2) clk = ~clk;
+    logic clk = 0;
+    always #(CLK_PERIOD/2) clk = ~clk;
 
     // I/O of synchronizer
-    reg async_signal;
-    wire sync_signal;
+    logic async_signal;
+    logic sync_signal;
 
     synchronizer #(.WIDTH(1)) DUT (
         .clk(clk),
@@ -33,11 +35,11 @@ module sync_tb();
             // This first thread will send a test signal into the DUT's async_signal input
             begin
                 async_signal = 1'b0;
-                #(`CLK_PERIOD * 2) async_signal = 1'b1;
-                #(`CLK_PERIOD * 1) async_signal = 1'b0;
-                #(`CLK_PERIOD * 3) async_signal = 1'b1;
-                #(`CLK_PERIOD * 2) async_signal = 1'b0;
-                #(`CLK_PERIOD * 4) async_signal = 1'b1;
+                #(CLK_PERIOD * 2) async_signal = 1'b1;
+                #(CLK_PERIOD * 1) async_signal = 1'b0;
+                #(CLK_PERIOD * 3) async_signal = 1'b1;
+                #(CLK_PERIOD * 2) async_signal = 1'b0;
+                #(CLK_PERIOD * 4) async_signal = 1'b1;
             end
 
             // This second thread will monitor the DUT's sync_signal output for the correct response

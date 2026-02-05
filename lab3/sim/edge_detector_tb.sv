@@ -5,12 +5,12 @@
 
 module edge_detector_tb();
     // Generate 125 MHz clock
-    reg clk = 0;
+    logic clk = 0;
     always #(`CLK_PERIOD/2) clk = ~clk;
 
     // I/O of edge detector
-    reg [`EDGE_DETECTOR_WIDTH-1:0] signal_in;
-    wire [`EDGE_DETECTOR_WIDTH-1:0] edge_detect_pulse;
+    logic [`EDGE_DETECTOR_WIDTH-1:0] signal_in;
+    logic [`EDGE_DETECTOR_WIDTH-1:0] edge_detect_pulse;
 
     edge_detector #(
         .WIDTH(`EDGE_DETECTOR_WIDTH)
@@ -20,8 +20,8 @@ module edge_detector_tb();
         .edge_detect_pulse(edge_detect_pulse)
     );
 
-    reg done = 0;
-    reg [31:0] tests_failed = 0;
+    logic done = 0;
+    integer tests_failed = 0;
 
     initial begin
         `ifdef IVERILOG

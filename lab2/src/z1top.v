@@ -1,3 +1,4 @@
+`default_nettype none
 module z1top (
     input CLK_100_P,
     input CLK_100_N,

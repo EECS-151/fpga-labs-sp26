@@ -1,15 +1,16 @@
+`default_nettype none
 `define CLOCK_FREQ 100_000_000
-
 module z1top (
-    input CLK_100_P,
-    input CLK_100_N,
-    input [3:0] BUTTONS,
-    input [7:0] SWITCHES,
-    output [7:0] LEDS
-    output AUD_PWM,
-    output AUD_SD
+    input wire CLK_100_P,
+    input wire CLK_100_N,
+    input wire [3:0] BUTTONS,
+    input wire [7:0] SWITCHES,
+    output wire [7:0] LEDS,
+    output wire [2:0] RGB_LED0,
+    output wire [2:0] RGB_LED1,
+    output wire [2:0] RGB_LED2,
+    output wire [2:0] RGB_LED3
 );
-    assign LEDS[5:4] = 2'b11;
 
     wire CLK_100;
     IBUFDS ibufds_clk (
@@ -36,26 +37,23 @@ module z1top (
     );
 
     counter count (
-        .clk(CLK_100),
+        .clk(CLK_100 & ~SWITCHES[7]),
         .buttons(buttons_pressed),
         .leds(LEDS[3:0])
     );
 
-    assign AUD_SD = SWITCHES[1]; // 1 = audio enabled
-    wire [9:0] code;
-    wire next_sample;
-    dac #(
-        .CYCLES_PER_WINDOW(1024)
-    ) dac (
-        .clk(CLK_100),
-        .code(code),
-        .next_sample(next_sample),
-        .pwm(AUD_PWM)
+    logic [2:0] RGB_LEDS [3:0];
+    rgb_display #(
+        .DEFAULT_PULSE_DURATION_CYCLES(10_000_000)
+    ) rd (
+        .clk(CLK_100 & SWITCHES[7]),
+        .switches(SWITCHES[2:0]),
+        .buttons(buttons_pressed[3:0]),
+        .rgb_leds(RGB_LEDS)
     );
 
-    sq_wave_gen gen (
-        .clk(CLK_100),
-        .next_sample(next_sample),
-        .code(code)
-    );
+    assign RGB_LED0 = RGB_LEDS[0];
+    assign RGB_LED1 = RGB_LEDS[1];
+    assign RGB_LED2 = RGB_LEDS[2];
+    assign RGB_LED3 = RGB_LEDS[3];
 endmodule

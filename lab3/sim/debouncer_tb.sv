@@ -9,12 +9,12 @@
 
 module debouncer_tb();
     // Generate 125 MHz clock
-    reg clk = 0;
+    logic clk = 0;
     always #(`CLK_PERIOD/2) clk = ~clk;
 
     // I/O of debouncer
-    reg [`DEBOUNCER_WIDTH-1:0] glitchy_signal;
-    wire [`DEBOUNCER_WIDTH-1:0] debounced_signal;
+    logic [`DEBOUNCER_WIDTH-1:0] glitchy_signal;
+    logic [`DEBOUNCER_WIDTH-1:0] debounced_signal;
 
     debouncer #(
         .WIDTH(`DEBOUNCER_WIDTH),
@@ -26,7 +26,7 @@ module debouncer_tb();
         .debounced_signal(debounced_signal)
     );
 
-    reg test0_done = 0;
+    logic test0_done = 0;
     integer z;
     initial begin
         `ifdef IVERILOG
