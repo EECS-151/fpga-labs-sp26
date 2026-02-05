@@ -1,10 +1,10 @@
 `default_nettype none
 module z1top (
-    input CLK_100_P,
-    input CLK_100_N,
-    input [3:0] BUTTONS,
-    input [7:0] SWITCHES,
-    output [7:0] LEDS
+    input wire CLK_100_P,
+    input wire CLK_100_N,
+    input wire [3:0] BUTTONS,
+    input wire [7:0] SWITCHES,
+    output wire [7:0] LEDS
 );
     wire CLK_100;
     IBUFDS ibufds_clk (
