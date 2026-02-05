@@ -7,7 +7,7 @@ module counter (
     assign LEDS = 4'd0;
 
     // TODO: Instantiate a register to count the number of cycles
-    // required to reach one second. Note that our clock period is 8ns.
+    // required to reach one second. Note that our clock period is 10ns.
     // Think about how many bits are needed for your reg.
 
     // TODO: Instantiate a register to hold the current count,
