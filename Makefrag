@@ -4,15 +4,17 @@ SCRIPTS                 := $(ABS_TOP)/../scripts
 VIVADO                  ?= /share/instsww/xilinx/2025.2/Vivado/bin/vivado
 VIVADO_OPTS             ?= -nolog -nojournal -mode batch
 FPGA_PART               ?= xczu3eg-sfvc784-2-e
-RTL                     += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.sv"))
+RTL                     += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f \( -name "*.v" -o -name "*.sv" \)))
 CONSTRAINTS             += $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/src -type f -name "*.xdc"))
 TOP                     ?= z1top
 VCS                     := /home/ff/eecs151/hammer-tools/synopsys/vcs/P-2019.06/bin/vcs -full64
-VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -timescale=1ns/10ps -debug
-SIM_RTL                 := $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/sim -type f -name "*.sv"))
+VCS_OPTS                := -notice -line +lint=all,noVCDE,noNS,noSVA-UA -sverilog -kdb -timescale=1ns/10ps -debug
+SIM_RTL                 := $(subst /cygdrive/c/,C:/, $(shell find $(ABS_TOP)/sim -type f \( -name "*.v" -o -name "*.sv" \)))
 IVERILOG                := iverilog
 IVERILOG_OPTS           := -D IVERILOG=1 -g2012 -gassertions -Wall -Wno-timescale
 VVP                     := vvp
+VPD2FSDB                ?= /share/instsww/synopsys-new/verdi/T-2022.06-SP2/bin/vpd2fsdb
+VERDI                   ?= /share/instsww/synopsys-new/verdi/T-2022.06-SP2/bin/verdi
 
 sim/%.tb: sim/%.sv $(RTL)
 	cd sim && $(VCS) $(VCS_OPTS) -o $*.tb $(RTL) $*.sv -top $*
@@ -20,11 +22,18 @@ sim/%.tb: sim/%.sv $(RTL)
 sim/%.vpd: sim/%.tb
 	cd sim && ./$*.tb +verbose=1 +vpdfile+$*.vpd
 
+sim/%.fsdb: sim/%.vpd
+	cd sim && $(VPD2FSDB) $*.vpd -o $*.fsdb
+
 sim/%.tbi: sim/%.sv $(RTL)
-	cd sim && $(IVERILOG) $(IVERILOG_OPTS) -o $*.tbi $*.sv $(RTL)
+	cd sim && $(IVERILOG) $(IVERILOG_OPTS) -o $*.tbi $*.v $(RTL)
 
 sim/%.fst: sim/%.tbi
 	cd sim && $(VVP) $*.tbi -fst
+
+# Open Verdi with FSDB and VCS dbdir. Usage: make verdi [TB=led_controller_tb]
+verdi: sim/$(TB).fsdb
+	$(VERDI) -dbdir sim/$(TB).tb.daidir -ssf sim/$(TB).fsdb &
 
 build/target.tcl: $(RTL) $(CONSTRAINTS)
 	mkdir -p build
@@ -102,8 +111,8 @@ compile_simlib: sim_build/compile_simlib/synopsys_sim.setup
 clean:
 	rm -rf ./build $(junk) *.daidir sim/output.txt \
 	sim/*.tb sim/*.daidir sim/csrc \
-	sim/ucli.key sim/*.vpd sim/*.vcd \
+	sim/ucli.key sim/*.vpd sim/*.vcd sim/*.fsdb \
 	sim/*.tbi sim/*.fst sim/*.jou sim/*.log sim/*.out
 
-.PHONY: setup synth impl program program-force vivado all clean %.tb
+.PHONY: setup synth impl program program-force vivado all clean verdi %.tb
 .PRECIOUS: sim/%.tb sim/%.tbi sim/%.fst sim/%.vpd

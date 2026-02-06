@@ -35,6 +35,9 @@ module led_controller_tb();
             $dumpfile("led_controller_tb.fst");
             $dumpvars(0, led_controller_tb);
         `endif
+        `ifndef IVERILOG
+            $vcdpluson;
+        `endif
 
         fork
             // Main test thread
