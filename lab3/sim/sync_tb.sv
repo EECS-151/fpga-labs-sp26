@@ -1,5 +1,4 @@
-timeunit 1ns;
-timeprecision 1ns;
+`timescale 1ns/1ps
 
 localparam int CLK_PERIOD = 8;
 
