@@ -1,5 +1,5 @@
 module counter #(
-    parameter int CYCLES_PER_SECOND = 125_000_000
+    parameter int CYCLES_PER_SECOND = 100_000_000
 )(
     input wire clk,
     input wire [3:0] buttons,
