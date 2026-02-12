@@ -24,6 +24,6 @@ module rgb_display #(
     // What should the rst be connected to?
     
     // TODO: Remove this once you have implemented the rgb_display module
-    assign rgb_leds = '0;
+    assign rgb_leds = '{3'b000, 3'b000, 3'b000, 3'b000};
     
 endmodule
