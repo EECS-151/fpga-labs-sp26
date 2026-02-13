@@ -16,15 +16,15 @@ module uart_receiver #(
     localparam SAMPLE_TIME = SYMBOL_EDGE_TIME / 2;
     localparam CLOCK_COUNTER_WIDTH= $clog2(SYMBOL_EDGE_TIME);
 
-    wire symbol_edge;
-    wire sample;
-    wire start;
-    wire rx_running;
+    logic symbol_edge;
+    logic sample;
+    logic start;
+    logic rx_running;
 
-    reg [9:0] rx_shift;
-    reg [3:0] bit_counter;
-    reg [CLOCK_COUNTER_WIDTH-1:0] clock_counter;
-    reg has_byte;
+    logic [9:0] rx_shift;
+    logic [3:0] bit_counter;
+    logic [CLOCK_COUNTER_WIDTH-1:0] clock_counter;
+    logic has_byte;
 
     //--|Signal Assignments|------------------------------------------------------
 
