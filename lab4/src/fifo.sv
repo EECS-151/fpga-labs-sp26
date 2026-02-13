@@ -6,7 +6,7 @@ module fifo #(
     input logic clk, rst,
 
     // Write side
-    input lgoic wr_en,
+    input logic wr_en,
     input logic [WIDTH-1:0] din,
     output logic full,
 
