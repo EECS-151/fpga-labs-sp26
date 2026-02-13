@@ -8,8 +8,8 @@ module button_parser #(
     input [WIDTH-1:0] in,
     output [WIDTH-1:0] out
 );
-    wire [WIDTH-1:0] synchronized_signals;
-    wire [WIDTH-1:0] debounced_signals;
+    logic [WIDTH-1:0] synchronized_signals;
+    logic [WIDTH-1:0] debounced_signals;
 
     synchronizer # (
         .WIDTH(WIDTH)
