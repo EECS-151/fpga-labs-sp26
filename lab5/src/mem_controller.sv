@@ -47,20 +47,18 @@ module mem_controller #(
   logic [2:0] curr_state;
   logic [2:0] next_state;
 
-  always @(posedge clk) begin
+  always_comb @(posedge clk) begin
 
     // State logic update
 
   end
 
-  logic [2:0] pkt_rd_cnt;
   logic [MEM_WIDTH-1:0] cmd;
   logic [MEM_WIDTH-1:0] addr;
   logic [MEM_WIDTH-1:0] data;
-  logic handshake;
 
 
-  always @(*) begin
+  always_ff begin
     
     // Initial values to avoid latch synthesis
 
@@ -72,7 +70,7 @@ module mem_controller #(
 
   end
 
-  always @(*) begin
+  always_ff begin
     
     // Initial values to avoid latch synthesis
     
@@ -81,13 +79,6 @@ module mem_controller #(
       // output logic and mem signal logic
       
     endcase
-
-  end
-
-
-  always @(posedge clk) begin
-
-    // Byte reading and packet counting
 
   end
 
