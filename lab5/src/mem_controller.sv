@@ -47,7 +47,7 @@ module mem_controller #(
   logic [2:0] curr_state;
   logic [2:0] next_state;
 
-  always_comb @(posedge clk) begin
+  always_ff @(posedge clk) begin
 
     // State logic update
 
@@ -58,7 +58,7 @@ module mem_controller #(
   logic [MEM_WIDTH-1:0] data;
 
 
-  always_ff begin
+  always_comb begin
     
     // Initial values to avoid latch synthesis
 
@@ -70,7 +70,7 @@ module mem_controller #(
 
   end
 
-  always_ff begin
+  always_comb begin
     
     // Initial values to avoid latch synthesis
     
