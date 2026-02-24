@@ -37,18 +37,18 @@ module system_tb();
 
   logic [7:0] tests_failed = 0;
 
-  z1top #(
+  z1top_sim #(
       .B_SAMPLE_CNT_MAX(`B_SAMPLE_CNT_MAX),
       .B_PULSE_CNT_MAX(`B_PULSE_CNT_MAX),
       .CLOCK_FREQ(`CLOCK_FREQ),
       .BAUD_RATE(`BAUD_RATE),
       .CYCLES_PER_SECOND(`CYCLES_PER_SECOND)
   ) top (
-      .CLK_125MHZ_FPGA(clk),
+      .CLK_100_P(clk),
+	  .CLK_100_N(0),
       .BUTTONS({buttons, rst}),
       .SWITCHES(switches),
       .LEDS(leds),
-      .AUD_PWM(),
       .FPGA_SERIAL_RX(FPGA_SERIAL_RX),
       .FPGA_SERIAL_TX(FPGA_SERIAL_TX)
   );
